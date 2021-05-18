@@ -15,5 +15,5 @@ a.out : $(OBJECTS)
 
 -include $(DEPENDS)
 
-%.o : %.c Makefile
+%.o : %.cpp Makefile
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
