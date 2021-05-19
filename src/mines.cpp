@@ -80,6 +80,38 @@ bool minesweeper::reveal(cell_t cell)
         return false;
 }
 
+bool minesweeper::flag(cell_t cell)
+{
+    if (!revealed.contains(cell))
+    {
+        if (!flags.contains(cell))
+            flags.insert(cell);
+        else
+            flags.erase(cell);
+
+        return true;
+    }
+    else
+        return false;
+}
+
+bool minesweeper::chord(cell_t cell)
+{
+    auto adj = adjacent(cell);
+
+    if (!mines.contains(cell) && revealed.contains(cell) &&
+        (adj & flags).size() + (adj & mines & revealed).size() ==
+            (adj & mines).size())
+    {
+        for (auto a : adj - flags)
+            reveal(a);
+
+        return true;
+    }
+    else
+        return false;
+}
+
 tile minesweeper::get_tile(cell_t cell)
 {
     static tile const numeric_tiles[] = {
