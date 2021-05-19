@@ -1,4 +1,4 @@
-CXXFLAGS	:= -std=c++17 -pedantic -Wall -Werror -Wextra
+CXXFLAGS	:= -std=c++2a -pedantic -Wall -Werror -Wextra
 SOURCES		:= $(wildcard src/*.cpp)
 OBJECTS		:= $(patsubst %.cpp,%.o,$(SOURCES))
 DEPENDS		:= $(patsubst %.cpp,%.d,$(SOURCES))
@@ -15,5 +15,5 @@ a.out : $(OBJECTS)
 
 -include $(DEPENDS)
 
-%.o : %.c Makefile
+%.o : %.cpp Makefile
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
