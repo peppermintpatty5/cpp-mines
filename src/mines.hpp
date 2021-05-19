@@ -23,7 +23,7 @@ enum class tile
     MINE,
     DETONATED,
     FLAG_RIGHT,
-    FLAG_WRONG
+    FLAG_WRONG,
 };
 
 /**
@@ -33,10 +33,7 @@ struct pair_hash
 {
 public:
     template <typename A, typename B>
-    std::size_t operator()(std::pair<A, B> const &p)
-    {
-        return std::hash<A>()(p.first) + std::hash<B>()(p.second);
-    }
+    std::size_t operator()(std::pair<A, B> const &p) const;
 };
 
 typedef std::pair<long, long> cell_t;
@@ -49,6 +46,12 @@ class minesweeper
 private:
     std::unordered_set<cell_t, pair_hash> mines, revealed, flags;
     double density;
+
+    /**
+     * Returns the set of adjacent cells
+     */
+    static std::unordered_set<cell_t, pair_hash>
+    adjacent(cell_t cell, bool keep_center = false);
 
 public:
     minesweeper(double density);
