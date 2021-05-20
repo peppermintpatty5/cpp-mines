@@ -42,6 +42,33 @@ static char tile_ch(tile t)
     }
 }
 
+/**
+ * Prompts the user for yes/no confirmation with the given message. Returns true
+ * if the user chose "yes", false if the user chose "no".
+ */
+static bool confirm_yn(WINDOW *w, char const *msg)
+{
+    int max_y = getmaxy(w);
+
+    wmove(w, max_y - 1, 0);
+    wprintw(w, "%s [y/n]", msg);
+
+    while (true)
+    {
+        switch (wgetch(w))
+        {
+        case 'y':
+        case 'Y':
+            return true;
+        case 'n':
+        case 'N':
+            return false;
+        default:
+            break;
+        }
+    }
+}
+
 void start_textui(minesweeper &game)
 {
     long ax = 0, ay = 0; // anchor point, top left corner
@@ -121,8 +148,14 @@ void start_textui(minesweeper &game)
             break;
         case 'q':
         case 'Q':
-            endwin();
-            return;
+            if (confirm_yn(stdscr, "Quit?"))
+            {
+                endwin();
+                return;
+            }
+            else
+                clear();
+            break;
         default:
             break;
         }
