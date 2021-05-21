@@ -96,7 +96,7 @@ void start_textui(minesweeper &game)
             }
         }
         wmove(stdscr, cy, cx * 2 + 1);
-        refresh();
+        wrefresh(stdscr);
 
         // take keyboard input
         switch (wgetch(stdscr))
@@ -150,11 +150,13 @@ void start_textui(minesweeper &game)
         case 'Q':
             if (confirm_yn(stdscr, "Quit?"))
             {
+                wclear(stdscr);
+                wrefresh(stdscr);
                 endwin();
                 return;
             }
             else
-                clear();
+                wclear(stdscr);
             break;
         default:
             break;
