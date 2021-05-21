@@ -1,5 +1,5 @@
-#ifndef GAME_HEADER
-#define GAME_HEADER
+#ifndef TEXTUI_HEADER
+#define TEXTUI_HEADER
 
 #include "mines.hpp"
 
