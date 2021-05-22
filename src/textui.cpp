@@ -51,7 +51,7 @@ static auto tile_attr(tile t)
 
     if (!initialized)
     {
-        init_pair((int)tile::PLAIN + 1, COLOR_WHITE, -1);
+        init_pair((int)tile::PLAIN + 1, COLOR_BLACK, -1);
         init_pair((int)tile::ZERO + 1, COLOR_WHITE, -1);
         init_pair((int)tile::ONE + 1, COLOR_BLUE, -1);
         init_pair((int)tile::TWO + 1, COLOR_GREEN, -1);
@@ -71,6 +71,7 @@ static auto tile_attr(tile t)
 
     switch (t)
     {
+    case tile::PLAIN:
     case tile::ONE:
     case tile::THREE:
     case tile::SEVEN:
@@ -79,16 +80,15 @@ static auto tile_attr(tile t)
     case tile::DETONATED:
     case tile::FLAG_RIGHT:
     case tile::FLAG_WRONG:
-        return COLOR_PAIR(static_cast<int>(t) + 1) | A_BOLD;
-    case tile::PLAIN:
+        return COLOR_PAIR((int)t + 1) | A_BOLD;
     case tile::ZERO:
     case tile::TWO:
     case tile::FOUR:
     case tile::FIVE:
     case tile::SIX:
-        return COLOR_PAIR(static_cast<int>(t) + 1) | A_NORMAL;
+        return COLOR_PAIR((int)t + 1) | A_NORMAL;
     default:
-        return COLOR_PAIR(0) | A_NORMAL;
+        return COLOR_PAIR(0);
     }
 }
 
@@ -101,6 +101,7 @@ static bool confirm_yn(WINDOW *w, char const *msg)
     int max_y = getmaxy(w);
 
     wmove(w, max_y - 1, 0);
+    wattrset(w, COLOR_PAIR(0));
     wprintw(w, "%s [y/n]", msg);
 
     while (true)
