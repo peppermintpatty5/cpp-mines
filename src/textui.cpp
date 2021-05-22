@@ -5,7 +5,7 @@
 /**
  * Maps each tile to a character representation
  */
-static char tile_ch(tile t)
+static char tile_char(tile t)
 {
     switch (t)
     {
@@ -39,6 +39,56 @@ static char tile_ch(tile t)
         return 'X';
     default:
         return '\0';
+    }
+}
+
+/**
+ * Maps each tile to an attribute which can be used directly in wattrset.
+ */
+static auto tile_attr(tile t)
+{
+    static bool initialized = false;
+
+    if (!initialized)
+    {
+        init_pair((int)tile::PLAIN + 1, COLOR_WHITE, -1);
+        init_pair((int)tile::ZERO + 1, COLOR_WHITE, -1);
+        init_pair((int)tile::ONE + 1, COLOR_BLUE, -1);
+        init_pair((int)tile::TWO + 1, COLOR_GREEN, -1);
+        init_pair((int)tile::THREE + 1, COLOR_RED, -1);
+        init_pair((int)tile::FOUR + 1, COLOR_BLUE, -1);
+        init_pair((int)tile::FIVE + 1, COLOR_RED, -1);
+        init_pair((int)tile::SIX + 1, COLOR_CYAN, -1);
+        init_pair((int)tile::SEVEN + 1, COLOR_WHITE, -1);
+        init_pair((int)tile::EIGHT + 1, COLOR_BLACK, -1);
+        init_pair((int)tile::MINE + 1, COLOR_MAGENTA, -1);
+        init_pair((int)tile::DETONATED + 1, COLOR_MAGENTA, -1);
+        init_pair((int)tile::FLAG_RIGHT + 1, COLOR_GREEN, -1);
+        init_pair((int)tile::FLAG_WRONG + 1, COLOR_MAGENTA, -1);
+
+        initialized = true;
+    }
+
+    switch (t)
+    {
+    case tile::ONE:
+    case tile::THREE:
+    case tile::SEVEN:
+    case tile::EIGHT:
+    case tile::MINE:
+    case tile::DETONATED:
+    case tile::FLAG_RIGHT:
+    case tile::FLAG_WRONG:
+        return COLOR_PAIR(static_cast<int>(t) + 1) | A_BOLD;
+    case tile::PLAIN:
+    case tile::ZERO:
+    case tile::TWO:
+    case tile::FOUR:
+    case tile::FIVE:
+    case tile::SIX:
+        return COLOR_PAIR(static_cast<int>(t) + 1) | A_NORMAL;
+    default:
+        return COLOR_PAIR(0) | A_NORMAL;
     }
 }
 
@@ -78,6 +128,8 @@ void start_textui(minesweeper &game)
     cbreak();
     noecho();
     keypad(stdscr, true);
+    start_color();
+    use_default_colors();
     wclear(stdscr);
 
     while (true)
@@ -91,8 +143,11 @@ void start_textui(minesweeper &game)
         {
             for (int x = 0; x < max_x / 2; x++)
             {
+                tile t = game.get_tile({ax + x, ay + y});
+
                 wmove(stdscr, y, x * 2 + 1);
-                waddch(stdscr, tile_ch(game.get_tile({ax + x, ay + y})));
+                wattrset(stdscr, tile_attr(t));
+                waddch(stdscr, tile_char(t));
             }
         }
         wmove(stdscr, cy, cx * 2 + 1);
