@@ -201,6 +201,11 @@ void start_textui(minesweeper &game)
             if (!game.flag(cell))
                 game.chord(cell);
             break;
+        case 'r':
+        case 'R':
+            wclear(stdscr);
+            wrefresh(stdscr);
+            break;
         case 'q':
         case 'Q':
             if (confirm_yn(stdscr, "Quit?"))
