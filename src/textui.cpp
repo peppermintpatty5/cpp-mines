@@ -139,6 +139,7 @@ void start_textui(minesweeper &game)
         int max_y = getmaxy(stdscr);
 
         // print the grid
+        curs_set(0);
         for (int y = 0; y < max_y; y++)
         {
             for (int x = 0; x < max_x / 2; x++)
@@ -152,6 +153,7 @@ void start_textui(minesweeper &game)
         }
         wmove(stdscr, cy, cx * 2 + 1);
         wrefresh(stdscr);
+        curs_set(1);
 
         // take keyboard input
         switch (wgetch(stdscr))
