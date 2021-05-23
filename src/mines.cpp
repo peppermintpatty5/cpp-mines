@@ -6,13 +6,13 @@ static std::mt19937 gen(std::random_device{}());
 static std::uniform_real_distribution<double> dist(0.0, 1.0);
 
 /**
- * Overload bitwise AND operator for sets to perform set intersection
+ * Set intersection operator overload
  */
-template <typename A, typename B>
-static std::unordered_set<A, B>
-operator&(std::unordered_set<A, B> a, std::unordered_set<A, B> b)
+static std::unordered_set<cell_t, pair_hash>
+operator&(std::unordered_set<cell_t, pair_hash> a,
+          std::unordered_set<cell_t, pair_hash> b)
 {
-    std::unordered_set<A, B> s;
+    std::unordered_set<cell_t, pair_hash> s;
 
     for (auto x : a)
         if (b.contains(x))
@@ -22,13 +22,13 @@ operator&(std::unordered_set<A, B> a, std::unordered_set<A, B> b)
 }
 
 /**
- * Overload minus operator for sets to perform set subtraction
+ * Set subtraction operator overload
  */
-template <typename A, typename B>
-static std::unordered_set<A, B>
-operator-(std::unordered_set<A, B> a, std::unordered_set<A, B> b)
+static std::unordered_set<cell_t, pair_hash>
+operator-(std::unordered_set<cell_t, pair_hash> a,
+          std::unordered_set<cell_t, pair_hash> b)
 {
-    std::unordered_set<A, B> s;
+    std::unordered_set<cell_t, pair_hash> s;
 
     for (auto x : a)
         if (!b.contains(x))
