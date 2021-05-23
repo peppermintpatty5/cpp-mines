@@ -53,6 +53,10 @@ private:
     static std::unordered_set<cell_t, pair_hash>
     adjacent(cell_t cell, bool keep_center = false);
 
+    bool reveal_auto(cell_t cell);
+
+    bool reveal_base(cell_t cell);
+
 public:
     minesweeper(double density);
 

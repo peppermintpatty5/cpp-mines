@@ -1,6 +1,13 @@
+#include <queue>
 #include <random>
 
 #include "mines.hpp"
+
+/**
+ * The reveal_auto function can loop indefinitely, therefore a limit on the
+ * number of iterations is required.
+ */
+#define REVEAL_AUTO_LIMIT 1024
 
 static std::mt19937 gen(std::random_device{}());
 static std::uniform_real_distribution<double> dist(0.0, 1.0);
@@ -64,6 +71,37 @@ minesweeper::adjacent(cell_t cell, bool keep_center)
 }
 
 bool minesweeper::reveal(cell_t cell)
+{
+    return reveal_auto(cell);
+}
+
+bool minesweeper::reveal_auto(cell_t cell)
+{
+    std::size_t count = 0;
+    std::queue<cell_t> q;
+
+    q.push(cell);
+    while (!q.empty() && count < REVEAL_AUTO_LIMIT)
+    {
+        auto f = q.front();
+
+        if (reveal_base(f))
+        {
+            auto adj = adjacent(f);
+
+            if (!mines.contains(f) && (adj & mines).empty())
+                for (auto a : adj - revealed)
+                    q.push(a);
+
+            count++;
+        }
+        q.pop();
+    }
+
+    return count != 0;
+}
+
+bool minesweeper::reveal_base(cell_t cell)
 {
     if (!revealed.contains(cell) && !flags.contains(cell))
     {
