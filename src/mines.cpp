@@ -15,11 +15,10 @@ static std::uniform_real_distribution<double> dist(0.0, 1.0);
 /**
  * Set intersection operator overload
  */
-static std::unordered_set<cell_t, pair_hash>
-operator&(std::unordered_set<cell_t, pair_hash> a,
-          std::unordered_set<cell_t, pair_hash> b)
+static std::unordered_set<cell_t>
+operator&(std::unordered_set<cell_t> a, std::unordered_set<cell_t> b)
 {
-    std::unordered_set<cell_t, pair_hash> s;
+    std::unordered_set<cell_t> s;
 
     for (auto x : a)
         if (b.contains(x))
@@ -31,11 +30,10 @@ operator&(std::unordered_set<cell_t, pair_hash> a,
 /**
  * Set subtraction operator overload
  */
-static std::unordered_set<cell_t, pair_hash>
-operator-(std::unordered_set<cell_t, pair_hash> a,
-          std::unordered_set<cell_t, pair_hash> b)
+static std::unordered_set<cell_t>
+operator-(std::unordered_set<cell_t> a, std::unordered_set<cell_t> b)
 {
-    std::unordered_set<cell_t, pair_hash> s;
+    std::unordered_set<cell_t> s;
 
     for (auto x : a)
         if (!b.contains(x))
@@ -44,10 +42,12 @@ operator-(std::unordered_set<cell_t, pair_hash> a,
     return s;
 }
 
-template <typename A, typename B>
-std::size_t pair_hash::operator()(std::pair<A, B> const &p) const
+/**
+ * Really lousy hash function
+ */
+std::size_t std::hash<cell_t>::operator()(cell_t const &cell) const
 {
-    return std::hash<A>()(p.first) + std::hash<B>()(p.second);
+    return std::hash<cell_t::first_type>()(cell.first << 32 | cell.second);
 }
 
 minesweeper::minesweeper(double density)
@@ -55,10 +55,9 @@ minesweeper::minesweeper(double density)
     this->density = density;
 }
 
-std::unordered_set<cell_t, pair_hash>
-minesweeper::adjacent(cell_t cell, bool keep_center)
+std::unordered_set<cell_t> minesweeper::adjacent(cell_t cell, bool keep_center)
 {
-    std::unordered_set<cell_t, pair_hash> adj;
+    std::unordered_set<cell_t> adj;
 
     for (auto x = cell.first - 1; x <= cell.first + 1; x++)
         for (auto y = cell.second - 1; y <= cell.second + 1; y++)
@@ -79,7 +78,7 @@ bool minesweeper::reveal_auto(cell_t cell)
 {
     std::size_t count = 0;
     std::queue<cell_t> queue;
-    std::unordered_set<cell_t, pair_hash> cache;
+    std::unordered_set<cell_t> cache;
 
     queue.push(cell);
     cache.insert(cell);

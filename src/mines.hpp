@@ -26,17 +26,16 @@ enum class tile
     FLAG_WRONG,
 };
 
-/**
- * Really lousy hash function
- */
-struct pair_hash
-{
-public:
-    template <typename A, typename B>
-    std::size_t operator()(std::pair<A, B> const &p) const;
-};
-
 typedef std::pair<long, long> cell_t;
+
+namespace std
+{
+    template <>
+    struct hash<cell_t>
+    {
+        size_t operator()(cell_t const &cell) const;
+    };
+}
 
 /**
  * Infinite minesweeper game
@@ -44,13 +43,13 @@ typedef std::pair<long, long> cell_t;
 class minesweeper
 {
 private:
-    std::unordered_set<cell_t, pair_hash> mines, revealed, flags;
+    std::unordered_set<cell_t> mines, revealed, flags;
     double density;
 
     /**
      * Returns the set of adjacent cells
      */
-    static std::unordered_set<cell_t, pair_hash>
+    static std::unordered_set<cell_t>
     adjacent(cell_t cell, bool keep_center = false);
 
     bool reveal_auto(cell_t cell);
