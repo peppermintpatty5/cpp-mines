@@ -5,7 +5,7 @@
 
 int main()
 {
-    minesweeper game(0.17);
+    minesweeper game(0.10);
 
     signal(SIGINT, SIG_IGN);
     start_textui(game);
