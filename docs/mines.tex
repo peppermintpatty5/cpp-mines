@@ -1,0 +1,68 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+
+\title{Set-based Minesweeper}
+\author{Andrew Kritzler}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+
+\section{Definition of \(G\)}
+
+Minesweeper is usually played on a finite rectangular grid containing a predetermined number of mines.
+Consider the following \(3 \times 4\) grid with 3 mines.
+
+\[
+    \begin{matrix}
+        \texttt{0} & \texttt{1} & \texttt{\#} & \texttt{*} \\
+        \texttt{1} & \texttt{2} & \texttt{3}  & \texttt{-} \\
+        \texttt{X} & \texttt{@} & \texttt{-}  & \texttt{-} \\
+    \end{matrix}
+\]
+
+\texttt{*} is a mine, \texttt{@} is a detonated mine, \texttt{\#} is a correct flag, \texttt{X} is an incorrect flag, and \texttt{-} is a plain tile.
+The following table provides a description of every cell.
+
+\begin{center}
+    \begin{tabular}{*{6}{c}}
+        \toprule
+        \(x\) & \(y\) & Tile        & Mine?     & Revealed? & Flagged?  \\
+        \midrule
+        0     & 0     & \texttt{X}  &           &           & \(\top \) \\
+        0     & 1     & \texttt{1}  &           & \(\top \) &           \\
+        0     & 2     & \texttt{0}  &           & \(\top \) &           \\
+        1     & 0     & \texttt{@}  & \(\top \) & \(\top \) &           \\
+        1     & 1     & \texttt{2}  &           & \(\top \) &           \\
+        1     & 2     & \texttt{1}  &           & \(\top \) &           \\
+        2     & 0     & \texttt{-}  &           &           &           \\
+        2     & 1     & \texttt{3}  &           & \(\top \) &           \\
+        2     & 2     & \texttt{\#} & \(\top \) &           & \(\top \) \\
+        3     & 0     & \texttt{-}  &           &           &           \\
+        3     & 1     & \texttt{-}  &           &           &           \\
+        3     & 2     & \texttt{*}  & \(\top \) &           &           \\
+        \bottomrule
+    \end{tabular}
+\end{center}
+
+Hopefully, the following transformation is self-explanatory.
+For each entry in the matrix, \((x, y) \in M\) if it is a mine.
+Similarly, sets \(R\) and \(F\) are used for the remaining columns.
+
+\[
+    \begin{aligned}
+        M & = \{(1, 0), (2, 2), (3, 2)\}                         \\
+        R & = \{(0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 1)\} \\
+        F & = \{(0, 0), (2, 2)\}
+    \end{aligned}
+\]
+
+Formally, \(G = (M, R, F)\) is a minesweeper game, where \(M, R, F \subseteq \mathbb{Z}^2\) and \(R \cap F = \varnothing \).
+
+
+\end{document}
