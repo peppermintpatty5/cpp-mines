@@ -1,5 +1,6 @@
 \documentclass[12pt]{article}
 
+\usepackage[ruled, vlined]{algorithm2e}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
@@ -34,7 +35,6 @@ Consider the following \(3 \times 4\) grid with 3 mines.
 
 \texttt{*} is a mine, \texttt{@} is a detonated mine, \texttt{\#} is a correct flag, \texttt{X} is an incorrect flag, and \texttt{-} is a plain tile.
 The following table provides a description of every cell.
-
 \begin{center}
     \begin{tabular}{*{6}{c}}
         \toprule
@@ -57,7 +57,7 @@ The following table provides a description of every cell.
 \end{center}
 
 Hopefully, the following transformation is self-explanatory.
-For each entry in the matrix, \((x, y) \in M\) if it is a mine.
+For each entry in the matrix, \((x, y) \in M\) if and only if it is a mine.
 Similarly, sets \(R\) and \(F\) are used for the remaining columns.
 \[
     \begin{aligned}
@@ -67,7 +67,54 @@ Similarly, sets \(R\) and \(F\) are used for the remaining columns.
     \end{aligned}
 \]
 
-Formally, \(G = (M, R, F)\) is a minesweeper game, where \(M, R, F \subseteq \mathbb{Z}^2\) and \(R \cap F = \varnothing \).
+\(G = (M, R, F)\) is a minesweeper game, where \(M, R, F \subseteq \mathbb{Z}^2\) and \(R \cap F = \varnothing \).
+Notice how \(G\) does not encode the dimensions of the grid; the grid is considered to be infinite.
+An infinite game is impractical because computers have finite resources and the player could never win.
+However, the simplicity of this model is useful for mathematical study.
+
+
+\section{Dynamic Generation of \(M\)}
+
+Let \(A : \mathbb{Z}^2 \to \mathcal{P}(\mathbb{Z}^2)\) be a function that outputs the set of adjacent coordinates.
+\(A\) is a useful building block for more complex logic.
+For example, \(|A(x, y) \cap M|\) counts the number of mines adjacent to \((x,y)\).
+\[A(x, y) = (\{x - 1, x, x + 1\} \times \{y - 1, y, y + 1\}) \setminus \{(x, y)\} \]
+
+Generating \(M\) statically is impossible.
+An infinite board cannot be described in terms of its number of mines.
+Instead, the board must be described in terms of its density of mines.
+Let \(\gamma \) be a predetermined value representing the proportion of cells which are mines, where \(0 \leq \gamma \leq 1\).
+For example, in a \(16 \times 30\) board with 99 mines, \(\gamma = 99 \div (16 \times 30) = 0.20625\).
+
+A cell \((x, y)\) is \textit{inactive} if it and its adjacent cells have not been revealed, i.e., \((x, y) \notin R\) and \(A(x, y) \cap R = \varnothing \).
+When the player reveals a cell, mines are randomly placed in the inactive cells within \(A(x, y) \cup \{(x, y)\} \).
+Afterwards, all nine of these cells become active.
+On the player's first turn when \(R = \varnothing \), no mines are generated.
+Thus, the first tile revealed will always be \texttt{0}.
+
+For notation purposes, let \(X\) be a standard uniform random variable, i.e., \(X \sim U(0, 1)\).
+As a result, \(\Pr(X < \gamma ) = \gamma \).
+
+\begin{algorithm}[H]
+    \SetAlgoLined{}
+    \DontPrintSemicolon{}
+    \caption{Reveal}
+    \eIf{\((x, y) \notin R \cup F\)}{
+        \If{\(R \neq \varnothing \)}{
+            \ForAll{\((u, v) \in A(x, y) \cup \{(x, y)\} \)}{
+                \If{\((u, v) \notin R \wedge A(u, v) \cap R = \varnothing \)}{
+                    \If{\(X < \gamma \)}{
+                        \(M \gets M \cup \{(u, v)\} \)
+                    }
+                }
+            }
+        }
+        \(R \gets R \cup \{(x, y)\} \) \\
+        \Return{\(\top \)}
+    }{
+        \Return{\(\bot \)}
+    }
+\end{algorithm}
 
 
 \end{document}
