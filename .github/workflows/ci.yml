@@ -11,3 +11,15 @@ jobs:
 
       - name: Build
         run: make all
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install chktex
+        run: sudo apt-get -y install chktex
+
+      - name: Run chktex
+        run: chktex -wall docs/*.tex -n22 -n30 -e16 -q
