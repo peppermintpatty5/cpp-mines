@@ -24,7 +24,6 @@
 
 Minesweeper is usually played on a finite rectangular grid containing a predetermined number of mines.
 Consider the following \(3 \times 4\) grid with 3 mines.
-
 \[
     \begin{matrix}
         \texttt{0} & \texttt{1} & \texttt{\#} & \texttt{*} \\
@@ -53,14 +52,13 @@ The following table provides a description of every cell.
         3     & 0     & \texttt{-}  &           &           &           \\
         3     & 1     & \texttt{-}  &           &           &           \\
         3     & 2     & \texttt{*}  & \(\top \) &           &           \\
-        \bottomrule
+        \bottomrule                                                     \\
     \end{tabular}
 \end{center}
 
 Hopefully, the following transformation is self-explanatory.
 For each entry in the matrix, \((x, y) \in M\) if it is a mine.
 Similarly, sets \(R\) and \(F\) are used for the remaining columns.
-
 \[
     \begin{aligned}
         M & = \{(1, 0), (2, 2), (3, 2)\}                         \\
