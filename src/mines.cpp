@@ -43,9 +43,10 @@ std::size_t pair_hash::operator()(std::pair<A, B> const &p) const
     return std::hash<A>()(p.first) + std::hash<B>()(p.second);
 }
 
-minesweeper::minesweeper(double density)
+minesweeper::minesweeper(double density, bool xray)
 {
     this->density = density;
+    this->xray = xray;
 }
 
 std::unordered_set<cell_t, pair_hash>
@@ -129,9 +130,23 @@ tile minesweeper::get_tile(cell_t cell)
     bool m = mines.contains(cell),
          r = revealed.contains(cell),
          f = flags.contains(cell);
+    tile t = m ? (r ? tile::DETONATED
+                    : (f ? tile::FLAG_RIGHT : tile::MINE))
+               : (r ? numeric_tiles[(adjacent(cell) & mines).size()]
+                    : (f ? tile::FLAG_WRONG : tile::PLAIN));
 
-    return m ? (r ? tile::DETONATED
-                  : (f ? tile::FLAG_RIGHT : tile::MINE))
-             : (r ? numeric_tiles[(adjacent(cell) & mines).size()]
-                  : (f ? tile::FLAG_WRONG : tile::PLAIN));
+    if (xray)
+        return t;
+    else
+    {
+        switch (t)
+        {
+        case tile::FLAG_WRONG:
+            return tile::FLAG_RIGHT;
+        case tile::MINE:
+            return tile::PLAIN;
+        default:
+            return t;
+        }
+    }
 }

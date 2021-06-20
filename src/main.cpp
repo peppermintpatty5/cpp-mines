@@ -7,6 +7,7 @@
 int main(int argc, char const *argv[])
 {
     double density = 0.17;
+    bool xray = false;
     minesweeper *game;
 
     for (int i = 1; i < argc; i++)
@@ -23,6 +24,9 @@ int main(int argc, char const *argv[])
             case 'h':
                 std::printf("help\n");
                 std::exit(EXIT_SUCCESS);
+            case 'x':
+                xray = true;
+                break;
             default:
                 std::fprintf(stderr, "invalid option -- '%c'\n", flag);
                 std::exit(EXIT_FAILURE);
@@ -30,7 +34,7 @@ int main(int argc, char const *argv[])
         }
     }
 
-    game = new minesweeper(density);
+    game = new minesweeper(density, xray);
 
     signal(SIGINT, SIG_IGN);
     start_textui(*game);
