@@ -50,9 +50,10 @@ std::size_t std::hash<cell_t>::operator()(cell_t const &cell) const
     return std::hash<cell_t::first_type>()(cell.first << 32 | cell.second);
 }
 
-minesweeper::minesweeper(double density)
+minesweeper::minesweeper(double density, bool xray)
 {
     this->density = density;
+    this->xray = xray;
 }
 
 std::unordered_set<cell_t> minesweeper::adjacent(cell_t cell, bool keep_center)
@@ -171,9 +172,23 @@ tile minesweeper::get_tile(cell_t cell)
     bool m = mines.contains(cell),
          r = revealed.contains(cell),
          f = flags.contains(cell);
+    tile t = m ? (r ? tile::DETONATED
+                    : (f ? tile::FLAG_RIGHT : tile::MINE))
+               : (r ? numeric_tiles[(adjacent(cell) & mines).size()]
+                    : (f ? tile::FLAG_WRONG : tile::PLAIN));
 
-    return m ? (r ? tile::DETONATED
-                  : (f ? tile::FLAG_RIGHT : tile::MINE))
-             : (r ? numeric_tiles[(adjacent(cell) & mines).size()]
-                  : (f ? tile::FLAG_WRONG : tile::PLAIN));
+    if (xray)
+        return t;
+    else
+    {
+        switch (t)
+        {
+        case tile::FLAG_WRONG:
+            return tile::FLAG_RIGHT;
+        case tile::MINE:
+            return tile::PLAIN;
+        default:
+            return t;
+        }
+    }
 }

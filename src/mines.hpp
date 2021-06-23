@@ -45,6 +45,7 @@ class minesweeper
 private:
     std::unordered_set<cell_t> mines, revealed, flags;
     double density;
+    bool xray;
 
     /**
      * Returns the set of adjacent cells
@@ -57,7 +58,7 @@ private:
     bool reveal_base(cell_t cell);
 
 public:
-    minesweeper(double density);
+    minesweeper(double density, bool xray);
 
     bool reveal(cell_t cell);
 
