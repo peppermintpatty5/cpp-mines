@@ -4,6 +4,16 @@
 
 #include "textui.hpp"
 
+static char const *const HELP_FMT =
+    "Usage: %s [OPTION]...\n"
+    "\n"
+    "Plays a game of minesweeper\n"
+    "\n"
+    "optional arguments:\n"
+    "  -d N       set mine density to 0 <= N <= 1, default N = 0.17\n"
+    "  -h,        show this help message and exit\n"
+    "  -x         enable X-ray cheats\n";
+
 int main(int argc, char const *argv[])
 {
     double density = 0.17;
@@ -19,10 +29,13 @@ int main(int argc, char const *argv[])
             switch (flag)
             {
             case 'd':
-                density = std::atof(&argv[i][2]);
+                if (argv[i][2] != '\0')
+                    density = std::atof(&argv[i][2]);
+                else if (i + 1 < argc)
+                    density = std::atof(argv[++i]);
                 break;
             case 'h':
-                std::printf("help\n");
+                std::printf(HELP_FMT, argv[0]);
                 std::exit(EXIT_SUCCESS);
             case 'x':
                 xray = true;
