@@ -116,24 +116,24 @@ bool minesweeper::chord(cell_t cell)
 tile minesweeper::get_tile(cell_t cell)
 {
     static tile const numeric_tiles[] = {
-        tile::ZERO,
-        tile::ONE,
-        tile::TWO,
-        tile::THREE,
-        tile::FOUR,
-        tile::FIVE,
-        tile::SIX,
-        tile::SEVEN,
-        tile::EIGHT,
+        TILE_ZERO,
+        TILE_ONE,
+        TILE_TWO,
+        TILE_THREE,
+        TILE_FOUR,
+        TILE_FIVE,
+        TILE_SIX,
+        TILE_SEVEN,
+        TILE_EIGHT,
     };
 
     bool m = mines.contains(cell),
          r = revealed.contains(cell),
          f = flags.contains(cell);
-    tile t = m ? (r ? tile::DETONATED
-                    : (f ? tile::FLAG_RIGHT : tile::MINE))
+    tile t = m ? (r ? TILE_DETONATED
+                    : (f ? TILE_FLAG_RIGHT : TILE_MINE))
                : (r ? numeric_tiles[(adjacent(cell) & mines).size()]
-                    : (f ? tile::FLAG_WRONG : tile::PLAIN));
+                    : (f ? TILE_FLAG_WRONG : TILE_PLAIN));
 
     if (xray)
         return t;
@@ -141,10 +141,10 @@ tile minesweeper::get_tile(cell_t cell)
     {
         switch (t)
         {
-        case tile::FLAG_WRONG:
-            return tile::FLAG_RIGHT;
-        case tile::MINE:
-            return tile::PLAIN;
+        case TILE_FLAG_WRONG:
+            return TILE_FLAG_RIGHT;
+        case TILE_MINE:
+            return TILE_PLAIN;
         default:
             return t;
         }

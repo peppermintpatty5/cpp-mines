@@ -9,33 +9,33 @@ static char tile_char(tile t)
 {
     switch (t)
     {
-    case tile::PLAIN:
+    case TILE_PLAIN:
         return '-';
-    case tile::ZERO:
+    case TILE_ZERO:
         return ' ';
-    case tile::ONE:
+    case TILE_ONE:
         return '1';
-    case tile::TWO:
+    case TILE_TWO:
         return '2';
-    case tile::THREE:
+    case TILE_THREE:
         return '3';
-    case tile::FOUR:
+    case TILE_FOUR:
         return '4';
-    case tile::FIVE:
+    case TILE_FIVE:
         return '5';
-    case tile::SIX:
+    case TILE_SIX:
         return '6';
-    case tile::SEVEN:
+    case TILE_SEVEN:
         return '7';
-    case tile::EIGHT:
+    case TILE_EIGHT:
         return '8';
-    case tile::MINE:
+    case TILE_MINE:
         return '*';
-    case tile::DETONATED:
+    case TILE_DETONATED:
         return '@';
-    case tile::FLAG_RIGHT:
+    case TILE_FLAG_RIGHT:
         return '#';
-    case tile::FLAG_WRONG:
+    case TILE_FLAG_WRONG:
         return 'X';
     default:
         return '\0';
@@ -51,41 +51,41 @@ static auto tile_attr(tile t)
 
     if (!initialized)
     {
-        init_pair((int)tile::PLAIN + 1, COLOR_BLACK, -1);
-        init_pair((int)tile::ZERO + 1, COLOR_WHITE, -1);
-        init_pair((int)tile::ONE + 1, COLOR_BLUE, -1);
-        init_pair((int)tile::TWO + 1, COLOR_GREEN, -1);
-        init_pair((int)tile::THREE + 1, COLOR_RED, -1);
-        init_pair((int)tile::FOUR + 1, COLOR_BLUE, -1);
-        init_pair((int)tile::FIVE + 1, COLOR_RED, -1);
-        init_pair((int)tile::SIX + 1, COLOR_CYAN, -1);
-        init_pair((int)tile::SEVEN + 1, COLOR_WHITE, -1);
-        init_pair((int)tile::EIGHT + 1, COLOR_BLACK, -1);
-        init_pair((int)tile::MINE + 1, COLOR_MAGENTA, -1);
-        init_pair((int)tile::DETONATED + 1, COLOR_MAGENTA, -1);
-        init_pair((int)tile::FLAG_RIGHT + 1, COLOR_GREEN, -1);
-        init_pair((int)tile::FLAG_WRONG + 1, COLOR_MAGENTA, -1);
+        init_pair((int)TILE_PLAIN + 1, COLOR_BLACK, -1);
+        init_pair((int)TILE_ZERO + 1, COLOR_WHITE, -1);
+        init_pair((int)TILE_ONE + 1, COLOR_BLUE, -1);
+        init_pair((int)TILE_TWO + 1, COLOR_GREEN, -1);
+        init_pair((int)TILE_THREE + 1, COLOR_RED, -1);
+        init_pair((int)TILE_FOUR + 1, COLOR_BLUE, -1);
+        init_pair((int)TILE_FIVE + 1, COLOR_RED, -1);
+        init_pair((int)TILE_SIX + 1, COLOR_CYAN, -1);
+        init_pair((int)TILE_SEVEN + 1, COLOR_WHITE, -1);
+        init_pair((int)TILE_EIGHT + 1, COLOR_BLACK, -1);
+        init_pair((int)TILE_MINE + 1, COLOR_MAGENTA, -1);
+        init_pair((int)TILE_DETONATED + 1, COLOR_MAGENTA, -1);
+        init_pair((int)TILE_FLAG_RIGHT + 1, COLOR_GREEN, -1);
+        init_pair((int)TILE_FLAG_WRONG + 1, COLOR_MAGENTA, -1);
 
         initialized = true;
     }
 
     switch (t)
     {
-    case tile::PLAIN:
-    case tile::ONE:
-    case tile::THREE:
-    case tile::SEVEN:
-    case tile::EIGHT:
-    case tile::MINE:
-    case tile::DETONATED:
-    case tile::FLAG_RIGHT:
-    case tile::FLAG_WRONG:
+    case TILE_PLAIN:
+    case TILE_ONE:
+    case TILE_THREE:
+    case TILE_SEVEN:
+    case TILE_EIGHT:
+    case TILE_MINE:
+    case TILE_DETONATED:
+    case TILE_FLAG_RIGHT:
+    case TILE_FLAG_WRONG:
         return COLOR_PAIR((int)t + 1) | A_BOLD;
-    case tile::ZERO:
-    case tile::TWO:
-    case tile::FOUR:
-    case tile::FIVE:
-    case tile::SIX:
+    case TILE_ZERO:
+    case TILE_TWO:
+    case TILE_FOUR:
+    case TILE_FIVE:
+    case TILE_SIX:
         return COLOR_PAIR((int)t + 1) | A_NORMAL;
     default:
         return COLOR_PAIR(0);

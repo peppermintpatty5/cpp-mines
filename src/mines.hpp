@@ -7,22 +7,22 @@
 /**
  * Represents the state of a cell
  */
-enum class tile
+enum tile
 {
-    PLAIN,
-    ZERO,
-    ONE,
-    TWO,
-    THREE,
-    FOUR,
-    FIVE,
-    SIX,
-    SEVEN,
-    EIGHT,
-    MINE,
-    DETONATED,
-    FLAG_RIGHT,
-    FLAG_WRONG,
+    TILE_ZERO,
+    TILE_ONE,
+    TILE_TWO,
+    TILE_THREE,
+    TILE_FOUR,
+    TILE_FIVE,
+    TILE_SIX,
+    TILE_SEVEN,
+    TILE_EIGHT,
+    TILE_PLAIN,
+    TILE_MINE,
+    TILE_DETONATED,
+    TILE_FLAG_RIGHT,
+    TILE_FLAG_WRONG,
 };
 
 /**
