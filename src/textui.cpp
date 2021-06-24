@@ -9,8 +9,6 @@ static char tile_char(tile t)
 {
     switch (t)
     {
-    case TILE_PLAIN:
-        return '-';
     case TILE_ZERO:
         return ' ';
     case TILE_ONE:
@@ -29,6 +27,8 @@ static char tile_char(tile t)
         return '7';
     case TILE_EIGHT:
         return '8';
+    case TILE_PLAIN:
+        return '-';
     case TILE_MINE:
         return '*';
     case TILE_DETONATED:
@@ -71,11 +71,11 @@ static auto tile_attr(tile t)
 
     switch (t)
     {
-    case TILE_PLAIN:
     case TILE_ONE:
     case TILE_THREE:
     case TILE_SEVEN:
     case TILE_EIGHT:
+    case TILE_PLAIN:
     case TILE_MINE:
     case TILE_DETONATED:
     case TILE_FLAG_RIGHT:

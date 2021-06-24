@@ -62,7 +62,7 @@ public:
 
     bool chord(cell_t cell);
 
-    tile get_tile(cell_t cell);
+    enum tile get_tile(cell_t cell);
 };
 
 #endif
