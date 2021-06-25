@@ -25,9 +25,9 @@ int main(int argc, char const *argv[])
     {
         if (argv[i][0] == '-')
         {
-            char flag = argv[i][1];
+            char opt = argv[i][1];
 
-            switch (flag)
+            switch (opt)
             {
             case 'd':
                 if (argv[i][2] != '\0')
@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
                 g.xray = true;
                 break;
             default:
-                std::fprintf(stderr, "invalid option -- '%c'\n", flag);
+                std::fprintf(stderr, "invalid option -- '%c'\n", opt);
                 std::exit(EXIT_FAILURE);
             }
         }
