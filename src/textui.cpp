@@ -5,7 +5,7 @@
 /**
  * Maps each tile to a character representation
  */
-static char tile_char(tile t)
+static char tile_char(enum tile t)
 {
     switch (t)
     {
@@ -45,7 +45,7 @@ static char tile_char(tile t)
 /**
  * Maps each tile to an attribute which can be used directly in wattrset.
  */
-static auto tile_attr(tile t)
+static auto tile_attr(enum tile t)
 {
     static bool initialized = false;
 
@@ -145,7 +145,7 @@ void start_textui(minesweeper &game)
         {
             for (int x = 0; x < max_x / 2; x++)
             {
-                tile t = game.get_tile({ax + x, ay + y});
+                enum tile t = game.get_tile({ax + x, ay + y});
 
                 wmove(stdscr, y, x * 2 + 1);
                 wattrset(stdscr, tile_attr(t));
