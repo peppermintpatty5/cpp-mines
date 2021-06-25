@@ -49,31 +49,31 @@ minesweeper::minesweeper(double density, bool xray)
     this->xray = xray;
 }
 
-std::unordered_set<cell_t, pair_hash>
-minesweeper::adjacent(cell_t cell, bool keep_center)
+std::unordered_set<std::pair<long, long>, pair_hash>
+minesweeper::adjacent(long x, long y, bool keep_center)
 {
-    std::unordered_set<cell_t, pair_hash> adj;
+    std::unordered_set<std::pair<long, long>, pair_hash> adj;
 
-    for (auto x = cell.first - 1; x <= cell.first + 1; x++)
-        for (auto y = cell.second - 1; y <= cell.second + 1; y++)
-            adj.insert({x, y});
+    for (long u = x - 1; u <= x + 1; u++)
+        for (long v = y - 1; v <= y + 1; v++)
+            adj.insert({u, v});
 
     if (!keep_center)
-        adj.erase(cell);
+        adj.erase({x, y});
 
     return adj;
 }
 
-bool minesweeper::reveal(cell_t cell)
+bool minesweeper::reveal(long x, long y)
 {
-    if (!revealed.contains(cell) && !flags.contains(cell))
+    if (!revealed.contains({x, y}) && !flags.contains({x, y}))
     {
         if (!revealed.empty())
-            for (auto a : adjacent(cell, true) - revealed)
-                if ((adjacent(a) & revealed).empty() && dist(gen) < density)
-                    mines.insert(a);
+            for (auto [u, v] : adjacent(x, y, true) - revealed)
+                if ((adjacent(u, v, false) & revealed).empty() && dist(gen) < density)
+                    mines.insert({u, v});
 
-        revealed.insert(cell);
+        revealed.insert({x, y});
 
         return true;
     }
@@ -81,14 +81,14 @@ bool minesweeper::reveal(cell_t cell)
         return false;
 }
 
-bool minesweeper::flag(cell_t cell)
+bool minesweeper::flag(long x, long y)
 {
-    if (!revealed.contains(cell))
+    if (!revealed.contains({x, y}))
     {
-        if (!flags.contains(cell))
-            flags.insert(cell);
+        if (!flags.contains({x, y}))
+            flags.insert({x, y});
         else
-            flags.erase(cell);
+            flags.erase({x, y});
 
         return true;
     }
@@ -96,16 +96,16 @@ bool minesweeper::flag(cell_t cell)
         return false;
 }
 
-bool minesweeper::chord(cell_t cell)
+bool minesweeper::chord(long x, long y)
 {
-    auto adj = adjacent(cell);
+    auto adj = adjacent(x, y, false);
 
-    if (!mines.contains(cell) && revealed.contains(cell) &&
+    if (!mines.contains({x, y}) && revealed.contains({x, y}) &&
         (adj & flags).size() + (adj & mines & revealed).size() ==
             (adj & mines).size())
     {
-        for (auto a : adj - flags)
-            reveal(a);
+        for (auto [u, v] : adj - flags)
+            reveal(u, v);
 
         return true;
     }
@@ -113,14 +113,14 @@ bool minesweeper::chord(cell_t cell)
         return false;
 }
 
-enum tile minesweeper::get_tile(cell_t cell)
+enum tile minesweeper::get_tile(long x, long y)
 {
-    bool m = mines.contains(cell),
-         r = revealed.contains(cell),
-         f = flags.contains(cell);
+    bool m = mines.contains({x, y}),
+         r = revealed.contains({x, y}),
+         f = flags.contains({x, y});
     enum tile t = m ? (r ? TILE_DETONATED
                          : (f ? TILE_FLAG_RIGHT : TILE_MINE))
-                    : (r ? (enum tile)((int)TILE_ZERO + (adjacent(cell) & mines).size())
+                    : (r ? (enum tile)((int)TILE_ZERO + (adjacent(x, y, false) & mines).size())
                          : (f ? TILE_FLAG_WRONG : TILE_PLAIN));
 
     if (xray)

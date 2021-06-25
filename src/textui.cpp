@@ -51,7 +51,6 @@ static auto tile_attr(enum tile t)
 
     if (!initialized)
     {
-        init_pair((int)TILE_PLAIN + 1, COLOR_BLACK, -1);
         init_pair((int)TILE_ZERO + 1, COLOR_WHITE, -1);
         init_pair((int)TILE_ONE + 1, COLOR_BLUE, -1);
         init_pair((int)TILE_TWO + 1, COLOR_GREEN, -1);
@@ -61,6 +60,7 @@ static auto tile_attr(enum tile t)
         init_pair((int)TILE_SIX + 1, COLOR_CYAN, -1);
         init_pair((int)TILE_SEVEN + 1, COLOR_WHITE, -1);
         init_pair((int)TILE_EIGHT + 1, COLOR_BLACK, -1);
+        init_pair((int)TILE_PLAIN + 1, COLOR_BLACK, -1);
         init_pair((int)TILE_MINE + 1, COLOR_MAGENTA, -1);
         init_pair((int)TILE_DETONATED + 1, COLOR_MAGENTA, -1);
         init_pair((int)TILE_FLAG_RIGHT + 1, COLOR_GREEN, -1);
@@ -135,7 +135,6 @@ void start_textui(minesweeper &game)
 
     while (true)
     {
-        cell_t cell(ax + cx, ay + cy);
         int max_x = getmaxx(stdscr);
         int max_y = getmaxy(stdscr);
 
@@ -145,7 +144,7 @@ void start_textui(minesweeper &game)
         {
             for (int x = 0; x < max_x / 2; x++)
             {
-                enum tile t = game.get_tile({ax + x, ay + y});
+                enum tile t = game.get_tile(ax + x, ay + y);
 
                 wmove(stdscr, y, x * 2 + 1);
                 wattrset(stdscr, tile_attr(t));
@@ -198,11 +197,11 @@ void start_textui(minesweeper &game)
         case KEY_ENTER:
         case '\r':
         case '\n':
-            game.reveal(cell);
+            game.reveal(ax + cx, ay + cy);
             break;
         case ' ':
-            if (!game.flag(cell))
-                game.chord(cell);
+            if (!game.flag(ax + cx, ay + cy))
+                game.chord(ax + cx, ay + cy);
             break;
         case 'r':
         case 'R':

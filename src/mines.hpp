@@ -35,34 +35,32 @@ public:
     std::size_t operator()(std::pair<A, B> const &p) const;
 };
 
-typedef std::pair<long, long> cell_t;
-
 /**
  * Infinite minesweeper game
  */
 class minesweeper
 {
 private:
-    std::unordered_set<cell_t, pair_hash> mines, revealed, flags;
+    std::unordered_set<std::pair<long, long>, pair_hash> mines, revealed, flags;
     double density;
     bool xray;
 
     /**
      * Returns the set of adjacent cells
      */
-    static std::unordered_set<cell_t, pair_hash>
-    adjacent(cell_t cell, bool keep_center = false);
+    static std::unordered_set<std::pair<long, long>, pair_hash>
+    adjacent(long x, long y, bool keep_center);
 
 public:
     minesweeper(double density, bool xray);
 
-    bool reveal(cell_t cell);
+    bool reveal(long x, long y);
 
-    bool flag(cell_t cell);
+    bool flag(long x, long y);
 
-    bool chord(cell_t cell);
+    bool chord(long x, long y);
 
-    enum tile get_tile(cell_t cell);
+    enum tile get_tile(long x, long y);
 };
 
 #endif
