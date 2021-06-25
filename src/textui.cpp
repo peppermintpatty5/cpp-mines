@@ -120,7 +120,7 @@ static bool confirm_yn(WINDOW *w, char const *msg)
     }
 }
 
-void start_textui(minesweeper &game)
+void start_textui(struct minesweeper *g)
 {
     long ax = 0, ay = 0; // anchor point, top left corner
     long cx = 0, cy = 0; // cursor point, relative to anchor
@@ -144,7 +144,7 @@ void start_textui(minesweeper &game)
         {
             for (int x = 0; x < max_x / 2; x++)
             {
-                enum tile t = game.get_tile(ax + x, ay + y);
+                enum tile t = get_tile(g, ax + x, ay + y);
 
                 wmove(stdscr, y, x * 2 + 1);
                 wattrset(stdscr, tile_attr(t));
@@ -197,11 +197,11 @@ void start_textui(minesweeper &game)
         case KEY_ENTER:
         case '\r':
         case '\n':
-            game.reveal(ax + cx, ay + cy);
+            reveal(g, ax + cx, ay + cy);
             break;
         case ' ':
-            if (!game.flag(ax + cx, ay + cy))
-                game.chord(ax + cx, ay + cy);
+            if (!flag(g, ax + cx, ay + cy))
+                chord(g, ax + cx, ay + cy);
             break;
         case 'r':
         case 'R':

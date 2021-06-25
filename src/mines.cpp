@@ -2,6 +2,13 @@
 
 #include "mines.hpp"
 
+/**
+ * Returns the set of pairs adjacent to (x, y). The result will include (x, y)
+ * if keep_center is true.
+ */
+static std::unordered_set<std::pair<long, long>, pair_hash>
+adjacent(long x, long y, bool keep_center);
+
 static std::mt19937 gen(std::random_device{}());
 static std::uniform_real_distribution<double> dist(0.0, 1.0);
 
@@ -43,14 +50,8 @@ std::size_t pair_hash::operator()(std::pair<A, B> const &p) const
     return std::hash<A>()(p.first) + std::hash<B>()(p.second);
 }
 
-minesweeper::minesweeper(double density, bool xray)
-{
-    this->density = density;
-    this->xray = xray;
-}
-
 std::unordered_set<std::pair<long, long>, pair_hash>
-minesweeper::adjacent(long x, long y, bool keep_center)
+adjacent(long x, long y, bool keep_center)
 {
     std::unordered_set<std::pair<long, long>, pair_hash> adj;
 
@@ -64,16 +65,16 @@ minesweeper::adjacent(long x, long y, bool keep_center)
     return adj;
 }
 
-bool minesweeper::reveal(long x, long y)
+bool reveal(struct minesweeper *g, long x, long y)
 {
-    if (!revealed.contains({x, y}) && !flags.contains({x, y}))
+    if (!g->r.contains({x, y}) && !g->f.contains({x, y}))
     {
-        if (!revealed.empty())
-            for (auto [u, v] : adjacent(x, y, true) - revealed)
-                if ((adjacent(u, v, false) & revealed).empty() && dist(gen) < density)
-                    mines.insert({u, v});
+        if (!g->r.empty())
+            for (auto [u, v] : adjacent(x, y, true) - g->r)
+                if ((adjacent(u, v, false) & g->r).empty() && dist(gen) < g->density)
+                    g->m.insert({u, v});
 
-        revealed.insert({x, y});
+        g->r.insert({x, y});
 
         return true;
     }
@@ -81,14 +82,14 @@ bool minesweeper::reveal(long x, long y)
         return false;
 }
 
-bool minesweeper::flag(long x, long y)
+bool flag(struct minesweeper *g, long x, long y)
 {
-    if (!revealed.contains({x, y}))
+    if (!g->r.contains({x, y}))
     {
-        if (!flags.contains({x, y}))
-            flags.insert({x, y});
+        if (!g->f.contains({x, y}))
+            g->f.insert({x, y});
         else
-            flags.erase({x, y});
+            g->f.erase({x, y});
 
         return true;
     }
@@ -96,16 +97,16 @@ bool minesweeper::flag(long x, long y)
         return false;
 }
 
-bool minesweeper::chord(long x, long y)
+bool chord(struct minesweeper *g, long x, long y)
 {
     auto adj = adjacent(x, y, false);
 
-    if (!mines.contains({x, y}) && revealed.contains({x, y}) &&
-        (adj & flags).size() + (adj & mines & revealed).size() ==
-            (adj & mines).size())
+    if (!g->m.contains({x, y}) && g->r.contains({x, y}) &&
+        (adj & g->f).size() + (adj & g->m & g->r).size() ==
+            (adj & g->m).size())
     {
-        for (auto [u, v] : adj - flags)
-            reveal(u, v);
+        for (auto [u, v] : adj - g->f)
+            reveal(g, u, v);
 
         return true;
     }
@@ -113,17 +114,17 @@ bool minesweeper::chord(long x, long y)
         return false;
 }
 
-enum tile minesweeper::get_tile(long x, long y)
+enum tile get_tile(struct minesweeper *g, long x, long y)
 {
-    bool m = mines.contains({x, y}),
-         r = revealed.contains({x, y}),
-         f = flags.contains({x, y});
+    bool m = g->m.contains({x, y}),
+         r = g->r.contains({x, y}),
+         f = g->f.contains({x, y});
     enum tile t = m ? (r ? TILE_DETONATED
                          : (f ? TILE_FLAG_RIGHT : TILE_MINE))
-                    : (r ? (enum tile)((int)TILE_ZERO + (adjacent(x, y, false) & mines).size())
+                    : (r ? (enum tile)((int)TILE_ZERO + (adjacent(x, y, false) & g->m).size())
                          : (f ? TILE_FLAG_WRONG : TILE_PLAIN));
 
-    if (xray)
+    if (g->xray)
         return t;
     else
     {

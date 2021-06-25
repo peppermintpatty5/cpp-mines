@@ -6,6 +6,6 @@
 /**
  * Starts an ncurses user interface for the minesweeper game
  */
-void start_textui(minesweeper &game);
+void start_textui(struct minesweeper *g);
 
 #endif

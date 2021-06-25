@@ -38,29 +38,22 @@ public:
 /**
  * Infinite minesweeper game
  */
-class minesweeper
+struct minesweeper
 {
-private:
-    std::unordered_set<std::pair<long, long>, pair_hash> mines, revealed, flags;
-    double density;
-    bool xray;
-
-    /**
-     * Returns the set of adjacent cells
-     */
-    static std::unordered_set<std::pair<long, long>, pair_hash>
-    adjacent(long x, long y, bool keep_center);
-
-public:
-    minesweeper(double density, bool xray);
-
-    bool reveal(long x, long y);
-
-    bool flag(long x, long y);
-
-    bool chord(long x, long y);
-
-    enum tile get_tile(long x, long y);
+    std::unordered_set<std::pair<long, long>, pair_hash>
+        m,          // the set of mines
+        r,          // the set of revealed cells
+        f;          // the set of flagged cells
+    double density; // the proportion of cells which are mines
+    bool xray;      // xray cheats, show everything
 };
+
+bool reveal(struct minesweeper *g, long x, long y);
+
+bool flag(struct minesweeper *g, long x, long y);
+
+bool chord(struct minesweeper *g, long x, long y);
+
+enum tile get_tile(struct minesweeper *g, long x, long y);
 
 #endif

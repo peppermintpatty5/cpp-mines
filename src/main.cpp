@@ -16,9 +16,10 @@ static char const *const HELP_FMT =
 
 int main(int argc, char const *argv[])
 {
-    double density = 0.17;
-    bool xray = false;
-    minesweeper *game;
+    struct minesweeper g;
+
+    g.density = 0.17;
+    g.xray = false;
 
     for (int i = 1; i < argc; i++)
     {
@@ -30,15 +31,15 @@ int main(int argc, char const *argv[])
             {
             case 'd':
                 if (argv[i][2] != '\0')
-                    density = std::atof(&argv[i][2]);
+                    g.density = std::atof(&argv[i][2]);
                 else if (i + 1 < argc)
-                    density = std::atof(argv[++i]);
+                    g.density = std::atof(argv[++i]);
                 break;
             case 'h':
                 std::printf(HELP_FMT, argv[0]);
                 std::exit(EXIT_SUCCESS);
             case 'x':
-                xray = true;
+                g.xray = true;
                 break;
             default:
                 std::fprintf(stderr, "invalid option -- '%c'\n", flag);
@@ -47,10 +48,8 @@ int main(int argc, char const *argv[])
         }
     }
 
-    game = new minesweeper(density, xray);
-
     signal(SIGINT, SIG_IGN);
-    start_textui(*game);
+    start_textui(&g);
 
     return EXIT_SUCCESS;
 }
