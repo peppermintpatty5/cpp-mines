@@ -9,6 +9,17 @@
  */
 #define REVEAL_AUTO_LIMIT 4096
 
+/**
+ * Returns the set of pairs adjacent to (x, y). The result will include (x, y)
+ * if keep_center is true.
+ */
+static std::unordered_set<std::pair<long, long>>
+adjacent(long x, long y, bool keep_center);
+
+static bool reveal_auto(struct minesweeper *g, long x, long y);
+
+static bool reveal_base(struct minesweeper *g, long x, long y);
+
 static std::mt19937 gen(std::random_device{}());
 static std::uniform_real_distribution<double> dist(0.0, 1.0);
 
@@ -50,50 +61,45 @@ std::size_t std::hash<cell_t>::operator()(cell_t const &cell) const
     return std::hash<cell_t::first_type>()(cell.first << 32 | cell.second);
 }
 
-minesweeper::minesweeper(double density, bool xray)
+std::unordered_set<cell_t>
+adjacent(long x, long y, bool keep_center)
 {
-    this->density = density;
-    this->xray = xray;
-}
+    std::unordered_set<std::pair<long, long>> adj;
 
-std::unordered_set<cell_t> minesweeper::adjacent(cell_t cell, bool keep_center)
-{
-    std::unordered_set<cell_t> adj;
-
-    for (auto x = cell.first - 1; x <= cell.first + 1; x++)
-        for (auto y = cell.second - 1; y <= cell.second + 1; y++)
-            adj.insert({x, y});
+    for (long u = x - 1; u <= x + 1; u++)
+        for (long v = y - 1; v <= y + 1; v++)
+            adj.insert({u, v});
 
     if (!keep_center)
-        adj.erase(cell);
+        adj.erase({x, y});
 
     return adj;
 }
 
-bool minesweeper::reveal(cell_t cell)
+bool reveal(struct minesweeper *g, long x, long y)
 {
-    return reveal_auto(cell);
+    return reveal_auto(g, x, y);
 }
 
-bool minesweeper::reveal_auto(cell_t cell)
+bool reveal_auto(struct minesweeper *g, long x, long y)
 {
     std::size_t count = 0;
     std::queue<cell_t> queue;
     std::unordered_set<cell_t> cache;
 
-    queue.push(cell);
-    cache.insert(cell);
+    queue.push({x, y});
+    cache.insert({x, y});
 
     while (!queue.empty() && count < REVEAL_AUTO_LIMIT)
     {
-        auto f = queue.front();
+        auto pop = queue.front();
 
-        if (reveal_base(f))
+        if (reveal_base(g, pop.first, pop.second))
         {
-            auto adj = adjacent(f);
+            auto adj = adjacent(pop.first, pop.second, false);
 
-            if (!mines.contains(f) && (adj & mines).empty())
-                for (auto a : adj - revealed - flags - cache)
+            if (!g->m.contains(pop) && (adj & g->m).empty())
+                for (auto a : adj - g->r - g->f - cache)
                 {
                     queue.push(a);
                     cache.insert(a);
@@ -106,16 +112,16 @@ bool minesweeper::reveal_auto(cell_t cell)
     return count != 0;
 }
 
-bool minesweeper::reveal_base(cell_t cell)
+bool reveal_base(struct minesweeper *g, long x, long y)
 {
-    if (!revealed.contains(cell) && !flags.contains(cell))
+    if (!g->r.contains({x, y}) && !g->f.contains({x, y}))
     {
-        if (!revealed.empty())
-            for (auto a : adjacent(cell, true) - revealed)
-                if ((adjacent(a) & revealed).empty() && dist(gen) < density)
-                    mines.insert(a);
+        if (!g->r.empty())
+            for (auto [u, v] : adjacent(x, y, true) - g->r)
+                if ((adjacent(u, v, false) & g->r).empty() && dist(gen) < g->density)
+                    g->m.insert({u, v});
 
-        revealed.insert(cell);
+        g->r.insert({x, y});
 
         return true;
     }
@@ -123,14 +129,14 @@ bool minesweeper::reveal_base(cell_t cell)
         return false;
 }
 
-bool minesweeper::flag(cell_t cell)
+bool flag(struct minesweeper *g, long x, long y)
 {
-    if (!revealed.contains(cell))
+    if (!g->r.contains({x, y}))
     {
-        if (!flags.contains(cell))
-            flags.insert(cell);
+        if (!g->f.contains({x, y}))
+            g->f.insert({x, y});
         else
-            flags.erase(cell);
+            g->f.erase({x, y});
 
         return true;
     }
@@ -138,16 +144,16 @@ bool minesweeper::flag(cell_t cell)
         return false;
 }
 
-bool minesweeper::chord(cell_t cell)
+bool chord(struct minesweeper *g, long x, long y)
 {
-    auto adj = adjacent(cell);
+    auto adj = adjacent(x, y, false);
 
-    if (!mines.contains(cell) && revealed.contains(cell) &&
-        (adj & flags).size() + (adj & mines & revealed).size() ==
-            (adj & mines).size())
+    if (!g->m.contains({x, y}) && g->r.contains({x, y}) &&
+        (adj & g->f).size() + (adj & g->m & g->r).size() ==
+            (adj & g->m).size())
     {
-        for (auto a : adj - flags)
-            reveal(a);
+        for (auto [u, v] : adj - g->f)
+            reveal(g, u, v);
 
         return true;
     }
@@ -155,38 +161,26 @@ bool minesweeper::chord(cell_t cell)
         return false;
 }
 
-tile minesweeper::get_tile(cell_t cell)
+enum tile get_tile(struct minesweeper *g, long x, long y)
 {
-    static tile const numeric_tiles[] = {
-        tile::ZERO,
-        tile::ONE,
-        tile::TWO,
-        tile::THREE,
-        tile::FOUR,
-        tile::FIVE,
-        tile::SIX,
-        tile::SEVEN,
-        tile::EIGHT,
-    };
+    bool m = g->m.contains({x, y}),
+         r = g->r.contains({x, y}),
+         f = g->f.contains({x, y});
+    enum tile t = m ? (r ? TILE_DETONATED
+                         : (f ? TILE_FLAG_RIGHT : TILE_MINE))
+                    : (r ? (enum tile)((int)TILE_ZERO + (adjacent(x, y, false) & g->m).size())
+                         : (f ? TILE_FLAG_WRONG : TILE_PLAIN));
 
-    bool m = mines.contains(cell),
-         r = revealed.contains(cell),
-         f = flags.contains(cell);
-    tile t = m ? (r ? tile::DETONATED
-                    : (f ? tile::FLAG_RIGHT : tile::MINE))
-               : (r ? numeric_tiles[(adjacent(cell) & mines).size()]
-                    : (f ? tile::FLAG_WRONG : tile::PLAIN));
-
-    if (xray)
+    if (g->xray)
         return t;
     else
     {
         switch (t)
         {
-        case tile::FLAG_WRONG:
-            return tile::FLAG_RIGHT;
-        case tile::MINE:
-            return tile::PLAIN;
+        case TILE_FLAG_WRONG:
+            return TILE_FLAG_RIGHT;
+        case TILE_MINE:
+            return TILE_PLAIN;
         default:
             return t;
         }
