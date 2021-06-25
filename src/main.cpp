@@ -9,48 +9,47 @@ static char const *const HELP_FMT =
     "\n"
     "Plays a game of minesweeper\n"
     "\n"
-    "optional arguments:\n"
-    "  -d N       set mine density to 0 <= N <= 1, default N = 0.17\n"
-    "  -h,        show this help message and exit\n"
-    "  -x         enable X-ray cheats\n";
+    "Optional arguments:\n"
+    "  -d N  set mine density to 0 <= N <= 1, default N = 0.17\n"
+    "  -h    show this help message and exit\n"
+    "  -x    enable X-ray cheats\n";
 
 int main(int argc, char const *argv[])
 {
-    double density = 0.17;
-    bool xray = false;
-    minesweeper *game;
+    struct minesweeper g;
+
+    g.density = 0.17;
+    g.xray = false;
 
     for (int i = 1; i < argc; i++)
     {
         if (argv[i][0] == '-')
         {
-            char flag = argv[i][1];
+            char opt = argv[i][1];
 
-            switch (flag)
+            switch (opt)
             {
             case 'd':
                 if (argv[i][2] != '\0')
-                    density = std::atof(&argv[i][2]);
+                    g.density = std::atof(&argv[i][2]);
                 else if (i + 1 < argc)
-                    density = std::atof(argv[++i]);
+                    g.density = std::atof(argv[++i]);
                 break;
             case 'h':
                 std::printf(HELP_FMT, argv[0]);
                 std::exit(EXIT_SUCCESS);
             case 'x':
-                xray = true;
+                g.xray = true;
                 break;
             default:
-                std::fprintf(stderr, "invalid option -- '%c'\n", flag);
+                std::fprintf(stderr, "invalid option -- '%c'\n", opt);
                 std::exit(EXIT_FAILURE);
             }
         }
     }
 
-    game = new minesweeper(density, xray);
-
     signal(SIGINT, SIG_IGN);
-    start_textui(*game);
+    start_textui(&g);
 
     return EXIT_SUCCESS;
 }
