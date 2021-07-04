@@ -14,8 +14,7 @@
  * Returns the set of pairs adjacent to (x, y). The result will include (x, y)
  * if keep_center is true.
  */
-static std::unordered_set<std::pair<long, long>>
-adjacent(long x, long y, bool keep_center);
+static std::unordered_set<cell_t> adjacent(long x, long y, bool keep_center);
 
 static bool reveal_auto(struct minesweeper *g, long x, long y);
 
@@ -66,7 +65,7 @@ std::size_t std::hash<cell_t>::operator()(cell_t const &cell) const
 std::unordered_set<cell_t>
 adjacent(long x, long y, bool keep_center)
 {
-    std::unordered_set<std::pair<long, long>> adj;
+    std::unordered_set<cell_t> adj;
 
     for (long u = x - 1; u <= x + 1; u++)
         for (long v = y - 1; v <= y + 1; v++)
