@@ -1,5 +1,6 @@
 #include <queue>
 #include <random>
+#include <string>
 
 #include "mines.hpp"
 
@@ -7,7 +8,7 @@
  * The reveal_auto function can loop indefinitely, therefore a limit on the
  * number of cells processed is required.
  */
-#define REVEAL_AUTO_LIMIT 4096
+#define REVEAL_AUTO_LIMIT 1024
 
 /**
  * Returns the set of pairs adjacent to (x, y). The result will include (x, y)
@@ -58,7 +59,8 @@ operator-(std::unordered_set<cell_t> a, std::unordered_set<cell_t> b)
  */
 std::size_t std::hash<cell_t>::operator()(cell_t const &cell) const
 {
-    return std::hash<cell_t::first_type>()(cell.first << 32 | cell.second);
+    return std::hash<std::string>()(
+        std::to_string(cell.first) + "," + std::to_string(cell.second));
 }
 
 std::unordered_set<cell_t>
