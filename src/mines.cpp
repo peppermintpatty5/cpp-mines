@@ -1,25 +1,35 @@
+#include <queue>
 #include <random>
+#include <string>
 
 #include "mines.hpp"
+
+/**
+ * The reveal_auto function can loop indefinitely, therefore a limit on the
+ * number of cells processed is required.
+ */
+#define REVEAL_AUTO_LIMIT 1024
 
 /**
  * Returns the set of pairs adjacent to (x, y). The result will include (x, y)
  * if keep_center is true.
  */
-static std::unordered_set<std::pair<long, long>, pair_hash>
-adjacent(long x, long y, bool keep_center);
+static std::unordered_set<cell_t> adjacent(long x, long y, bool keep_center);
+
+static bool reveal_auto(struct minesweeper *g, long x, long y);
+
+static bool reveal_base(struct minesweeper *g, long x, long y);
 
 static std::mt19937 gen(std::random_device{}());
 static std::uniform_real_distribution<double> dist(0.0, 1.0);
 
 /**
- * Overload bitwise AND operator for sets to perform set intersection
+ * Set intersection operator overload
  */
-template <typename A, typename B>
-static std::unordered_set<A, B>
-operator&(std::unordered_set<A, B> a, std::unordered_set<A, B> b)
+static std::unordered_set<cell_t>
+operator&(std::unordered_set<cell_t> a, std::unordered_set<cell_t> b)
 {
-    std::unordered_set<A, B> s;
+    std::unordered_set<cell_t> s;
 
     for (auto x : a)
         if (b.contains(x))
@@ -29,13 +39,12 @@ operator&(std::unordered_set<A, B> a, std::unordered_set<A, B> b)
 }
 
 /**
- * Overload minus operator for sets to perform set subtraction
+ * Set subtraction operator overload
  */
-template <typename A, typename B>
-static std::unordered_set<A, B>
-operator-(std::unordered_set<A, B> a, std::unordered_set<A, B> b)
+static std::unordered_set<cell_t>
+operator-(std::unordered_set<cell_t> a, std::unordered_set<cell_t> b)
 {
-    std::unordered_set<A, B> s;
+    std::unordered_set<cell_t> s;
 
     for (auto x : a)
         if (!b.contains(x))
@@ -44,16 +53,19 @@ operator-(std::unordered_set<A, B> a, std::unordered_set<A, B> b)
     return s;
 }
 
-template <typename A, typename B>
-std::size_t pair_hash::operator()(std::pair<A, B> const &p) const
+/**
+ * Really lousy hash function
+ */
+std::size_t std::hash<cell_t>::operator()(cell_t const &cell) const
 {
-    return std::hash<A>()(p.first) + std::hash<B>()(p.second);
+    return std::hash<std::string_view>()(
+        std::string_view((char const *)&cell, sizeof(cell)));
 }
 
-std::unordered_set<std::pair<long, long>, pair_hash>
+std::unordered_set<cell_t>
 adjacent(long x, long y, bool keep_center)
 {
-    std::unordered_set<std::pair<long, long>, pair_hash> adj;
+    std::unordered_set<cell_t> adj;
 
     for (long u = x - 1; u <= x + 1; u++)
         for (long v = y - 1; v <= y + 1; v++)
@@ -66,6 +78,42 @@ adjacent(long x, long y, bool keep_center)
 }
 
 bool reveal(struct minesweeper *g, long x, long y)
+{
+    return reveal_auto(g, x, y);
+}
+
+bool reveal_auto(struct minesweeper *g, long x, long y)
+{
+    std::size_t count = 0;
+    std::queue<cell_t> queue;
+    std::unordered_set<cell_t> cache;
+
+    queue.push({x, y});
+    cache.insert({x, y});
+
+    while (!queue.empty() && count < REVEAL_AUTO_LIMIT)
+    {
+        auto pop = queue.front();
+
+        if (reveal_base(g, pop.first, pop.second))
+        {
+            auto adj = adjacent(pop.first, pop.second, false);
+
+            if (!g->m.contains(pop) && (adj & g->m).empty())
+                for (auto a : adj - g->r - g->f - cache)
+                {
+                    queue.push(a);
+                    cache.insert(a);
+                }
+            count++;
+        }
+        queue.pop();
+    }
+
+    return count != 0;
+}
+
+bool reveal_base(struct minesweeper *g, long x, long y)
 {
     if (!g->r.contains({x, y}) && !g->f.contains({x, y}))
     {

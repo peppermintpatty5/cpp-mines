@@ -25,22 +25,23 @@ enum tile
     TILE_FLAG_WRONG,
 };
 
-/**
- * Really lousy hash function
- */
-struct pair_hash
+typedef std::pair<long, long> cell_t;
+
+namespace std
 {
-public:
-    template <typename A, typename B>
-    std::size_t operator()(std::pair<A, B> const &p) const;
-};
+    template <>
+    struct hash<cell_t>
+    {
+        size_t operator()(cell_t const &cell) const;
+    };
+}
 
 /**
  * Infinite minesweeper game
  */
 struct minesweeper
 {
-    std::unordered_set<std::pair<long, long>, pair_hash>
+    std::unordered_set<cell_t>
         m,          // the set of mines
         r,          // the set of revealed cells
         f;          // the set of flagged cells
