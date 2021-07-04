@@ -59,8 +59,8 @@ operator-(std::unordered_set<cell_t> a, std::unordered_set<cell_t> b)
  */
 std::size_t std::hash<cell_t>::operator()(cell_t const &cell) const
 {
-    return std::hash<std::string>()(
-        std::to_string(cell.first) + "," + std::to_string(cell.second));
+    return std::hash<std::string_view>()(
+        std::string_view((char const *)&cell, sizeof(cell)));
 }
 
 std::unordered_set<cell_t>
