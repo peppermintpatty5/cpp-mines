@@ -194,6 +194,14 @@ void start_textui(struct minesweeper *g)
         case KEY_RIGHT:
             cx += 1;
             break;
+        case '0':
+            ax = -max_x / 4;
+            ay = -max_y / 2;
+            cx = max_x / 4;
+            cy = max_y / 2;
+            wclear(stdscr);
+            wrefresh(stdscr);
+            break;
         case KEY_ENTER:
         case '\r':
         case '\n':
